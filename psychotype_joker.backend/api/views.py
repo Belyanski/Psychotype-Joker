@@ -1,8 +1,12 @@
-from rest_framework import viewsets
+from random import choice
+
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from jokes.models import Category as JokeCategory, Joke
 from storys.models import Category as StorysCategory, Storys
 from .serializers import JokeCategorySerializer, JokeSerializer, StorysCategorySerializer, StorysSerializer
+
+from rest_framework.decorators import action
 
 class JokeViewSet(viewsets.ModelViewSet):
     queryset = Joke.objects.all()
@@ -13,35 +17,26 @@ class JokeViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=201)
-
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+    
+    @action(detail=False, methods=['get'])
+    def categories(self, request, *args, **kwargs):
+        categories = JokeCategory.objects.all()
+        serializer = JokeCategorySerializer(categories, many=True)
         return Response(serializer.data)
 
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.delete()
-        return Response(status=204)
+    @action(detail=False, methods=['get'], name='random_joke')
+    def random_joke(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        if queryset.exists():
+            random_joke = choice(queryset)
+            serializer = self.get_serializer(random_joke)
+            return Response(serializer.data)
+        else:
+            return Response({"detail": "No jokes available."}, status=status.HTTP_404_NOT_FOUND)
 
 
 class StorysViewSet(viewsets.ModelViewSet):
@@ -53,32 +48,23 @@ class StorysViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=201)
-
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+    @action(detail=False, methods=['get'])
+    def categories(self, request, *args, **kwargs):
+        categories = StorysCategory.objects.all()
+        serializer = StorysCategorySerializer(categories, many=True)
         return Response(serializer.data)
-
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.delete()
-        return Response(status=204)
+    
+    @action(detail=False, methods=['get'], name='random_story')
+    def random_story(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        if queryset.exists():
+            random_story = choice(queryset)
+            serializer = self.get_serializer(random_story)
+            return Response(serializer.data)
+        else:
+            return Response({"detail": "No stories available."}, status=status.HTTP_404_NOT_FOUND)
