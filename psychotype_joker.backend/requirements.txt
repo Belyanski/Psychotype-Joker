@@ -1,17 +1,8 @@
-<<<<<<< HEAD
 asgiref==3.7.2
 Django==5.0.1
 djangorestframework==3.14.0
+drf-nested-routers==0.93.5
 python-dotenv==1.0.0
 pytz==2023.3.post1
 sqlparse==0.4.4
 tzdata==2023.4
-=======
-asgiref==3.7.2
-Django==5.0.1
-psycopg2-binary==2.9.9
-python-dotenv==1.0.0
-sqlparse==0.4.4
-typing_extensions==4.9.0
-tzdata==2023.4
->>>>>>> d655a534bc9f0e0333dbc9ad12c989c213ab1881
